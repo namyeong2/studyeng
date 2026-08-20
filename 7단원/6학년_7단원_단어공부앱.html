@@ -224,7 +224,7 @@
   }
   .sent-blank-line { font-size:20px; font-weight:700; color:#3730a3; line-height:2.2; text-align:center; }
   .sp-blank-input {
-    display:inline-block; width:120px; font-size:19px; font-weight:800; text-align:center;
+    display:inline-block; min-width:70px; font-size:19px; font-weight:800; text-align:center;
     border:none; border-bottom:3px solid #6366f1; background:#eef2ff; border-radius:6px;
     margin:0 4px; padding:3px 6px;
   }
@@ -472,8 +472,10 @@
       </div>
 
       <div class="feedback" id="spWriteFeedback" style="text-align:center;"></div>
+      <div id="spWriteHint" style="text-align:center; font-size:15px; font-weight:800; color:#0f766e; min-height:22px;"></div>
       <div class="nav-row">
         <button onclick="checkSpWrite()">✅ 확인</button>
+        <button class="secondary" onclick="showSpHint()">💡 힌트</button>
       </div>
 
       <div class="complete-box" id="spWriteComplete" style="display:none;">
@@ -1005,6 +1007,7 @@ function goSpStage(n){
     document.getElementById('spWriteInput').style.display = 'inline-block';
     document.getElementById('spWriteSuffix').style.display = 'inline';
     document.getElementById('spWriteFeedback').style.display = 'block';
+    document.getElementById('spWriteHint').style.display = 'block';
     document.querySelector('#spStage2 .nav-row').style.display = 'flex';
     document.getElementById('spWriteComplete').style.display = 'none';
     renderSpWrite();
@@ -1156,6 +1159,7 @@ function renderSpBlank(){
   input.className = 'sp-blank-input';
   input.autocomplete = 'off';
   input.spellcheck = false;
+  input.style.width = (s.blank.length + 2) + 'ch';
   const afterSpan = document.createElement('span');
   afterSpan.textContent = after;
   line.appendChild(beforeSpan);
@@ -1209,8 +1213,13 @@ function renderSpWrite(){
   document.getElementById('spWriteSuffix').textContent = s.punct;
   document.getElementById('spWriteFeedback').textContent = '';
   document.getElementById('spWriteFeedback').className = 'feedback';
+  document.getElementById('spWriteHint').textContent = '';
   document.getElementById('spProgress3').textContent = (spIdx3+1) + ' / ' + SENTENCES.length;
   document.getElementById('spProgressFill3').style.width = ((spIdx3+1)/SENTENCES.length*100) + '%';
+}
+function showSpHint(){
+  const s = SENTENCES[spIdx3];
+  document.getElementById('spWriteHint').textContent = '💡 힌트: ' + s.blank;
 }
 function checkSpWrite(){
   const s = SENTENCES[spIdx3];
@@ -1238,6 +1247,7 @@ function nextSpWrite(){
     document.getElementById('spWriteInput').style.display = 'none';
     document.getElementById('spWriteSuffix').style.display = 'none';
     document.getElementById('spWriteFeedback').style.display = 'none';
+    document.getElementById('spWriteHint').style.display = 'none';
     document.querySelector('#spStage2 .nav-row').style.display = 'none';
     document.getElementById('spWriteComplete').style.display = 'block';
     return;
@@ -1268,12 +1278,13 @@ function restartSpTest(){
     row.className = 'sent-test-row';
     row.innerHTML =
       '<div class="num">' + (i+1) + '</div>' +
-      '<button class="speaker-btn" style="width:36px;height:36px;font-size:15px;" onclick="speak(' + JSON.stringify(s.en) + ')">🔊</button>' +
+      '<button class="speaker-btn sp-test-speak" style="width:36px;height:36px;font-size:15px;">🔊</button>' +
       '<div class="ko">' + s.ko + '</div>' +
       '<div class="sp-test-inputwrap">' +
         '<input type="text" data-idx="' + sentIdx + '" autocomplete="off" spellcheck="false">' +
         '<span class="sp-test-suffix">' + s.punct + '</span>' +
       '</div>';
+    row.querySelector('.sp-test-speak').addEventListener('click', () => speak(s.en));
     rows.appendChild(row);
   });
 }
